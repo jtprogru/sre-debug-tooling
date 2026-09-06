@@ -1,0 +1,5 @@
+*
+!hack/tools-lib.sh
+!hack/tools.list
+!hack/tools.sha256
+!hack/fetch-tools.sh

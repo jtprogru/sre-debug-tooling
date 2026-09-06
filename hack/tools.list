@@ -1,0 +1,30 @@
+# Release binaries baked into the image.
+#
+# Format: name|variant|version|url|kind
+#   name    - resulting binary name in /usr/local/bin
+#   variant - slim (base image) or full (adds on top of slim)
+#   version - pinned upstream version, without the leading "v"
+#   url     - download URL; placeholders are substituted by hack/fetch-tools.sh:
+#               {VERSION}      pinned version
+#               {ARCH}         amd64  | arm64
+#               {ARCH_X}       x86_64 | arm64
+#               {ARCH_TRIPLE}  x86_64 | aarch64
+#               {ARCH_X64}     x64    | arm64
+#   kind    - raw (plain binary) or tar (tar.gz/tgz, member named after "name")
+#
+# sha256 for every name/arch pair lives in hack/tools.sha256.
+# After bumping a version here run: make refresh-checksums
+
+kubectl|slim|1.37.0|https://dl.k8s.io/release/v{VERSION}/bin/linux/{ARCH}/kubectl|raw
+stern|slim|1.34.0|https://github.com/stern/stern/releases/download/v{VERSION}/stern_{VERSION}_linux_{ARCH}.tar.gz|tar
+grpcurl|slim|1.9.4|https://github.com/fullstorydev/grpcurl/releases/download/v{VERSION}/grpcurl_{VERSION}_linux_{ARCH_X}.tar.gz|tar
+yq|slim|4.53.6|https://github.com/mikefarah/yq/releases/download/v{VERSION}/yq_linux_{ARCH}|raw
+websocat|slim|1.14.1|https://github.com/vi/websocat/releases/download/v{VERSION}/websocat.{ARCH_TRIPLE}-unknown-linux-musl|raw
+oha|slim|1.16.0|https://github.com/hatoo/oha/releases/download/v{VERSION}/oha-linux-{ARCH}|raw
+k9s|full|0.51.0|https://github.com/derailed/k9s/releases/download/v{VERSION}/k9s_Linux_{ARCH}.tar.gz|tar
+helm|full|4.2.4|https://get.helm.sh/helm-v{VERSION}-linux-{ARCH}.tar.gz|tar
+ghz|full|0.121.0|https://github.com/bojand/ghz/releases/download/v{VERSION}/ghz-linux-{ARCH_X}.tar.gz|tar
+vegeta|full|12.13.0|https://github.com/tsenart/vegeta/releases/download/v{VERSION}/vegeta_{VERSION}_linux_{ARCH}.tar.gz|tar
+etcdctl|full|3.7.1|https://github.com/etcd-io/etcd/releases/download/v{VERSION}/etcd-v{VERSION}-linux-{ARCH}.tar.gz|tar
+crictl|full|1.37.0|https://github.com/kubernetes-sigs/cri-tools/releases/download/v{VERSION}/crictl-v{VERSION}-linux-{ARCH}.tar.gz|tar
+jattach|full|2.2|https://github.com/jattach/jattach/releases/download/v{VERSION}/jattach-linux-{ARCH_X64}.tgz|tar
