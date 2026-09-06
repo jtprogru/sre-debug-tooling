@@ -1,0 +1,52 @@
+# A standalone debug pod. Useful when you need a stable place to work from
+# rather than an ephemeral container inside somebody else's pod: reproducing a
+# request against a Service, running a load test, poking at a database.
+#
+# As written this pod is admissible in a namespace with Pod Security Admission
+# set to "restricted". Everything that needs more than that is commented out
+# below, so that raising privileges is always a deliberate edit.
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: debug
+  labels:
+    app.kubernetes.io/name: sre-debug-tooling
+    app.kubernetes.io/component: debug
+spec:
+  # Nothing here should outlive the incident.
+  terminationGracePeriodSeconds: 1
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: debug
+      image: ghcr.io/jtprogru/sre-debug-tooling:latest
+      imagePullPolicy: IfNotPresent
+      command: ["sleep", "infinity"]
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: false
+        capabilities:
+          drop:
+            - ALL
+        # tcpdump and nft need these, and they only work for uid 0. Uncomment
+        # this block together with the runAsUser override below.
+        # add:
+        #   - NET_ADMIN
+        #   - NET_RAW
+        # If you uncomment them, also set runAsUser: 0 here and drop the
+        # pod-level runAsNonRoot above - capabilities are useless to uid 1000.
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          cpu: "1"
+          memory: 1Gi

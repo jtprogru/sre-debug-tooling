@@ -1,0 +1,9 @@
+# Partial container spec for `kubectl debug --custom`, for the cases where
+# nothing short of full privileges will do: bpftrace, nsenter into the node,
+# reading another container's /proc.
+#
+# This is root on the node. Use it knowingly, and never leave it running.
+securityContext:
+  runAsUser: 0
+  runAsGroup: 0
+  privileged: true

@@ -1,0 +1,34 @@
+# The right to debug is the right to read every secret an application can read.
+# Grant it per namespace, to a named group, and not through cluster-admin.
+#
+# Replace the namespace and the subject before applying.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-debugger
+  namespace: REPLACE-ME
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods/ephemeralcontainers"]
+    verbs: ["get", "patch", "update"]
+  - apiGroups: [""]
+    resources: ["pods/exec", "pods/portforward"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-debugger
+  namespace: REPLACE-ME
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pod-debugger
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: REPLACE-ME-oncall

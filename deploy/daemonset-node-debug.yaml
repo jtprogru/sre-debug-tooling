@@ -1,0 +1,70 @@
+# Node-level debugging: host network, host PID namespace, the node filesystem
+# and the container runtime socket.
+#
+# This is root on every node it lands on. Treat applying it as a privileged
+# operation: keep it in its own namespace, gate it with RBAC, and delete it
+# when the incident is over. Do not leave it running "just in case".
+#
+# For a single node prefer `kubectl debug node/<node> --profile=sysadmin`,
+# which is the same power scoped to one node and one session.
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-debug
+  labels:
+    app.kubernetes.io/name: sre-debug-tooling
+    app.kubernetes.io/component: node-debug
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sre-debug-tooling
+      app.kubernetes.io/component: node-debug
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sre-debug-tooling
+        app.kubernetes.io/component: node-debug
+    spec:
+      hostNetwork: true
+      hostPID: true
+      dnsPolicy: ClusterFirstWithHostNet
+      terminationGracePeriodSeconds: 1
+      automountServiceAccountToken: false
+      # Land on every node, including ones cordoned or tainted during the
+      # incident - those are usually the interesting ones.
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: debug
+          image: ghcr.io/jtprogru/sre-debug-tooling:full-latest
+          imagePullPolicy: IfNotPresent
+          command: ["sleep", "infinity"]
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          env:
+            # crictl talks to the runtime through the mounted socket.
+            - name: CONTAINER_RUNTIME_ENDPOINT
+              value: unix:///run/containerd/containerd.sock
+          volumeMounts:
+            - name: host-root
+              mountPath: /host
+            - name: containerd-sock
+              mountPath: /run/containerd/containerd.sock
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+      volumes:
+        - name: host-root
+          hostPath:
+            path: /
+            type: Directory
+        - name: containerd-sock
+          hostPath:
+            path: /run/containerd/containerd.sock
+            type: Socket
