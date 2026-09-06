@@ -83,11 +83,11 @@ jobs:
       # A Go stdlib CVE inside upstream kubectl is fixed by kubernetes, not
       # here, so it is reported in the next step instead of blocking.
       - name: Scan OS packages with trivy
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: sre-debug-tooling:${{ matrix.variant }}-local
           scanners: vuln
-          pkg-types: os
+          vuln-type: os
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: "1"
@@ -95,7 +95,7 @@ jobs:
 
       - name: Report all vulnerabilities
         if: always()
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: sre-debug-tooling:${{ matrix.variant }}-local
           scanners: vuln
