@@ -114,7 +114,9 @@ make refresh-checksums
 make build test
 ```
 
-`hack/tools.sha256` is generated, never hand-edited. If you skip the refresh, the build fails with a checksum mismatch and tells you to run it — which is the point. Renovate opens the version bumps and labels them `needs-refresh-checksums`; it cannot regenerate the checksums for you.
+`hack/tools.sha256` is generated, never hand-edited. If you skip the refresh, the build fails with a checksum mismatch and tells you to run it — which is the point.
+
+These bumps are manual on purpose. An updater that only knows about upstream releases would drag `kubectl` to whatever shipped last week, and `kubectl` here has to follow your cluster rather than the newest tag — the skew policy is one minor version either side. Most of the rest costs nothing by being a release behind. What does need to move on its own is handled by [dependabot](.github/dependabot.yml): the base image digest, and the actions used in the workflow.
 
 ## A word on distributing this
 

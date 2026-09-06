@@ -1,15 +1,17 @@
 # syntax=docker/dockerfile:1.7
 
-# Base is pinned by digest, not by tag: an image you debug production with must
-# be byte-identical on every rebuild. Renovate bumps the digest.
-ARG BASE_IMAGE=debian:bookworm-slim@sha256:88200866dfff7ea7f5cbcb6ec7c8a701889efe6fe859fe64d6990e4b07ea4171
+# The base is pinned by digest, not by tag: an image you debug production with
+# must be byte-identical on every rebuild. The digest is written out in full on
+# each FROM rather than hidden behind an ARG, because that is the form
+# dependabot reads - and a digest nothing updates is a frozen CVE state.
+# Both FROM lines below carry the same digest and are bumped together.
 
 # ---------------------------------------------------------------------------
 # fetch: pull the pinned release binaries. Runs on the build platform, never
 # under emulation, because it only downloads and unpacks - it never executes
 # what it fetched.
 # ---------------------------------------------------------------------------
-FROM --platform=$BUILDPLATFORM ${BASE_IMAGE} AS fetch
+FROM --platform=$BUILDPLATFORM debian:bookworm-slim@sha256:88200866dfff7ea7f5cbcb6ec7c8a701889efe6fe859fe64d6990e4b07ea4171 AS fetch
 
 ARG TARGETARCH
 ENV DEBIAN_FRONTEND=noninteractive
@@ -26,7 +28,7 @@ RUN /hack/fetch-tools.sh slim "${TARGETARCH}" /out/slim \
 # ---------------------------------------------------------------------------
 # slim: network, DNS, HTTP/gRPC, TLS and pod logs. Closes most incidents.
 # ---------------------------------------------------------------------------
-FROM ${BASE_IMAGE} AS slim
+FROM debian:bookworm-slim@sha256:88200866dfff7ea7f5cbcb6ec7c8a701889efe6fe859fe64d6990e4b07ea4171 AS slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
