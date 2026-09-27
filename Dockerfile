@@ -11,7 +11,7 @@
 # under emulation, because it only downloads and unpacks - it never executes
 # what it fetched.
 # ---------------------------------------------------------------------------
-FROM --platform=$BUILDPLATFORM debian:bookworm-slim@sha256:88200866dfff7ea7f5cbcb6ec7c8a701889efe6fe859fe64d6990e4b07ea4171 AS fetch
+FROM --platform=$BUILDPLATFORM debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251 AS fetch
 
 ARG TARGETARCH
 ENV DEBIAN_FRONTEND=noninteractive
@@ -28,7 +28,7 @@ RUN /hack/fetch-tools.sh slim "${TARGETARCH}" /out/slim \
 # ---------------------------------------------------------------------------
 # slim: network, DNS, HTTP/gRPC, TLS and pod logs. Closes most incidents.
 # ---------------------------------------------------------------------------
-FROM debian:bookworm-slim@sha256:88200866dfff7ea7f5cbcb6ec7c8a701889efe6fe859fe64d6990e4b07ea4171 AS slim
+FROM debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251 AS slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
